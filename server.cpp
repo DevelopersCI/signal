@@ -1,4 +1,4 @@
-#include "echoserver.h"
+#include "server.h"
 #include "QtWebSockets/qwebsocketserver.h"
 #include "QtWebSockets/qwebsocket.h"
 #include <QtCore/QDebug>

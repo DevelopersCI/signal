@@ -1,29 +1,37 @@
-#ifndef DIALOG_H
-#define DIALOG_H
+#ifndef WINDOW_H
+#define WINDOW_H
 
-#include "masterthread.h"
+#include <QSystemTrayIcon>
+#include <QDialog>
+
+#include "bascula.h"
 #include <QDialog>
 #include <QMainWindow>
-#include "echoserver.h"
-QT_BEGIN_NAMESPACE
+#include "server.h"
+#include <QStackedLayout>
+#include "widgets/leftsidebar.h"
 
-class QLabel;
-class QLineEdit;
-class QSpinBox;
-class QPushButton;
-class QComboBox;
+#include "screens/serverscreen.h"
+#include "screens/basculascreen.h"
+#include "screens/printerscreen.h"
 
-QT_END_NAMESPACE
 
-class Dialog : public QMainWindow
+class Window : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit Dialog(QWidget *parent = nullptr);
+    explicit Window(QWidget *parent = nullptr);
+    //void setVisible(bool visible) override;
 
-
+protected:
+    void closeEvent(QCloseEvent *event) override;
 private slots:
+    void setIcon();
+    void iconActivated(QSystemTrayIcon::ActivationReason reason);
+    void showMessage();
+    void messageClicked();
+
     void transaction();
     void showResponse(const QString &s);
     void processError(const QString &s);
@@ -34,23 +42,29 @@ private slots:
 
 private:
     void setControlsEnabled(bool enable);
+    void handleLeftSideBarChanged(int index);
+    void createActions();
+    void createTrayIcon();
 
 private:
-    int m_transactionCount = 0;
-    QLabel *m_serialPortLabel;
-    QComboBox *m_serialPortComboBox;
-    QLabel *m_waitResponseLabel;
-    QSpinBox *m_waitResponseSpinBox;
-    QLabel *m_requestLabel;
-    QLineEdit *m_requestLineEdit;
-    QLabel *m_trafficLabel;
-    QLabel *m_statusLabel;
-    QPushButton *start;
-    QPushButton *stop;
+    LeftSideBar *m_leftSideBar;
+    QStackedLayout *m_stackedLayout;
+    ServerScreen *serverScreen;
+    BasculaScreen *basculaScreen;
+    PrinterScreen *printerScreen;
 
-    MasterThread m_thread;
+    Bascula m_thread;
     EchoServer *server;
+
+    QAction *minimizeAction;
+    QAction *maximizeAction;
+    QAction *restoreAction;
+    QAction *quitAction;
+
+    QSystemTrayIcon *trayIcon;
+    QMenu *trayIconMenu;
 
 };
 
-#endif // DIALOG_H
+#endif // QT_NO_SYSTEMTRAYICON
+

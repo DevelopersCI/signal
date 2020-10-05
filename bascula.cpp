@@ -1,4 +1,4 @@
-#include "masterthread.h"
+#include "bascula.h"
 
 #include <QSerialPort>
 
@@ -7,13 +7,13 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
-MasterThread::MasterThread(QObject *parent) :
+Bascula::Bascula(QObject *parent) :
     QThread(parent)
 {
 }
 
 //! [0]
-MasterThread::~MasterThread()
+Bascula::~Bascula()
 {
     m_mutex.lock();
     m_quit = true;
@@ -21,7 +21,7 @@ MasterThread::~MasterThread()
     m_mutex.unlock();
     wait();
 }
-void MasterThread::transaction(const QString &portName, int waitTimeout, const QString &request)
+void Bascula::transaction(const QString &portName, int waitTimeout, const QString &request)
 {
     const QMutexLocker locker(&m_mutex);
     m_portName = portName;
@@ -33,7 +33,7 @@ void MasterThread::transaction(const QString &portName, int waitTimeout, const Q
         m_cond.wakeOne();
 }
 
-void MasterThread::stopReading(){
+void Bascula::stopReading(){
     m_quit = true;
     /*m_mutex.lock();
     m_cond.wait(&m_mutex);
@@ -52,7 +52,7 @@ void MasterThread::stopReading(){
     m_mutex.unlock();*/
 }
 
-void MasterThread::run()
+void Bascula::run()
 {
     m_quit = false;
     bool currentPortNameChanged = false;

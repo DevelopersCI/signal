@@ -1,95 +1,65 @@
-#include "dialog.h"
-
-#include <QComboBox>
-#include <QGridLayout>
-#include <QLabel>
-#include <QLineEdit>
-#include <QPushButton>
-#include <QSerialPortInfo>
-#include <QSpinBox>
+#include "window.h"
 #include <QDebug>
-#include "echoserver.h"
+#include <QCloseEvent>
+#include "server.h"
 #include <QtCore/QCoreApplication>
 #include <QJsonDocument>
 #include <QJsonObject>
-Dialog::Dialog(QWidget *parent) :
-    QMainWindow(parent)    /*
-        m_serialPortLabel(new QLabel(tr("Serial port:"))),
-        m_serialPortComboBox(new QComboBox),
-        m_waitResponseLabel(new QLabel(tr("Wait response, msec:"))),
-        m_waitResponseSpinBox(new QSpinBox),
-        m_requestLabel(new QLabel(tr("Request:"))),
-        m_requestLineEdit(new QLineEdit(tr("Who are you?"))),
-        m_trafficLabel(new QLabel(tr("No traffic."))),
-        m_statusLabel(new QLabel(tr("Status: Not running."))),
-        m_runButton(new QPushButton(tr("Start")))*/{
+#include <QAction>
+#include <QMessageBox>
+#include <QMenu>
 
-    m_serialPortLabel = new QLabel(this);
-    m_serialPortLabel->setText(tr("Serial port:"));
-    // m_serialPortLabel->setGeometry(10,20,20,25);
+Window::Window(QWidget *parent) :
+    QMainWindow(parent),
+    m_leftSideBar(new LeftSideBar),
+    m_stackedLayout(new QStackedLayout),
+    serverScreen(new ServerScreen),
+    basculaScreen(new BasculaScreen),
+    printerScreen(new PrinterScreen)
+{
+    createActions();
+    createTrayIcon();
 
-    m_serialPortComboBox = new QComboBox();
-    m_waitResponseLabel = new QLabel();
-    m_waitResponseLabel->setText(tr("Wait response, msec:"));
+    QWidget *centralWidget = new QWidget();
+    QHBoxLayout *mainLayout = new QHBoxLayout;
+    mainLayout->setMargin(0);
+    mainLayout->setSpacing(0);
+    mainLayout->addWidget(m_leftSideBar);
+    mainLayout->addLayout(m_stackedLayout);
 
-    m_waitResponseSpinBox = new QSpinBox();
-    m_requestLineEdit = new QLineEdit();
-    m_requestLineEdit->setText(tr("Who are you?"));
-    m_trafficLabel = new QLabel();
-    m_trafficLabel->setText(tr("Transaction: 0"
-                               "\nQuantity: 0.000"
-                               "\nType: kg"));
-    m_statusLabel = new QLabel();
-    m_statusLabel->setText(tr("Status: Not running."));
-    start = new QPushButton();
-    start->setText(tr("Start"));
+    centralWidget->setLayout(mainLayout);
+    setCentralWidget(centralWidget);
 
-    stop = new QPushButton();
-    stop->setText(tr("Stop"));
+    m_stackedLayout->addWidget(serverScreen);
+    m_stackedLayout->addWidget(basculaScreen);
+    m_stackedLayout->addWidget(printerScreen);
+    m_stackedLayout->setCurrentIndex(1);
+    connect(m_leftSideBar, &LeftSideBar::buttonClicked, this, &Window::handleLeftSideBarChanged);
 
-    const auto infos = QSerialPortInfo::availablePorts();
-    for (const QSerialPortInfo &info : infos)
-        m_serialPortComboBox->addItem(info.portName());
-    m_waitResponseSpinBox->setRange(0, 10000);
-    m_waitResponseSpinBox->setValue(1000);
+    trayIcon->setIcon(QIcon(":/assets/server.svg"));
+    setWindowIcon(QIcon(":/assets/server.svg"));
+    trayIcon->setToolTip("Hola");
+    trayIcon->show();
+    /*
 
-
-    QWidget *content = new QWidget;
-    QGridLayout *mainLayout = new QGridLayout();
-    mainLayout->addWidget(m_serialPortLabel,0,0,1,1);
-    mainLayout->addWidget(m_serialPortComboBox,1,0,1,2);
-    mainLayout->addWidget(m_waitResponseLabel,2,0,1,2);
-    mainLayout->addWidget(m_waitResponseSpinBox,3,0,1,2);
-    mainLayout->addWidget(m_trafficLabel,4,0,1,2);
-    mainLayout->addWidget(m_statusLabel,5,0,1,2);
-    mainLayout->addWidget(start);
-    mainLayout->addWidget(stop);
-
-
-            content->setLayout(mainLayout);
-
-    setLayout(mainLayout);
-    setCentralWidget(content);
-
-    m_requestLineEdit->hide();
-    m_serialPortComboBox->setFocus();
     bool debug = true;
     int port = 3500;
     server = new class EchoServer(port, debug);
-    // QObject::connect(server, &EchoServer::closed, this, &QCoreApplication::quit);
 
 
-    connect(server, &EchoServer::onClientConnected, this, &Dialog::onClient);
-    connect(start, &QPushButton::clicked, this, &Dialog::transaction);
-    connect(stop, &QPushButton::clicked, this, &Dialog::clientDesconect);
-    connect(&m_thread, &MasterThread::response, this, &Dialog::showResponse);
-    connect(&m_thread, &MasterThread::error, this, &Dialog::processError);
-    connect(&m_thread, &MasterThread::timeout, this, &Dialog::processTimeout);
-    //connect(&m_thread, &MasterThread::response,this,&serve-> (QString));
-    //connect(&m_thread, &MasterThread::response,this,SLOT(server mensajerecibido(QString)));
+    connect(server, &EchoServer::onClientConnected, this, &MainWindow::onClient);
+    connect(start, &QPushButton::clicked, this, &MainWindow::transaction);
+    connect(stop, &QPushButton::clicked, this, &MainWindow::clientDesconect);
+    connect(&m_thread, &MasterThread::response, this, &MainWindow::showResponse);
+    connect(&m_thread, &MasterThread::error, this, &MainWindow::processError);
+    connect(&m_thread, &MasterThread::timeout, this, &MainWindow::processTimeout);*/
 }
 
-void Dialog::onClient(const bool &s){
+void Window::handleLeftSideBarChanged(int index)
+{
+    m_stackedLayout->setCurrentIndex(index);
+}
+void Window::onClient(const bool &s){
     if(s){
         clientConnect();
     } else {
@@ -97,40 +67,40 @@ void Dialog::onClient(const bool &s){
     }
 }
 
-void Dialog::clientConnect(){
+void Window::clientConnect(){
     setControlsEnabled(false);
-    m_statusLabel->setText(tr("Status: Running",
+    /*m_statusLabel->setText(tr("Status: Running",
                               "\nconnected to port %1.")
                            .arg(m_serialPortComboBox->currentText()));
     m_thread.transaction(m_serialPortComboBox->currentText(),
                          m_waitResponseSpinBox->value(),
-                         m_requestLineEdit->text());
+                         m_requestLineEdit->text());*/
 }
 
-void Dialog::clientDesconect(){
-    qDebug() << "cliente desconectado";
+void Window::clientDesconect(){
+    /*qDebug() << "cliente desconectado";
     m_statusLabel->setText(tr("Status: Stop",
                               "\nconnected to port %1.")
                            .arg(m_serialPortComboBox->currentText()));
     m_thread.stopReading();
-    start->setEnabled(false);
+    start->setEnabled(false);*/
 }
 
-void Dialog::transaction()
+void Window::transaction()
 {
-    setControlsEnabled(false);
+    /*setControlsEnabled(false);
     start->setEnabled(false);
     m_statusLabel->setText(tr("Status: Running",
                               "\nconnected to port %1.")
                            .arg(m_serialPortComboBox->currentText()));
     m_thread.transaction(m_serialPortComboBox->currentText(),
                          m_waitResponseSpinBox->value(),
-                         m_requestLineEdit->text());
+                         m_requestLineEdit->text());*/
 }
 
-void Dialog::showResponse(const QString &s)
+void Window::showResponse(const QString &s)
 {
-    server->processTextMessage(s);
+    /*server->processTextMessage(s);
     setControlsEnabled(true);
     QJsonDocument temp = QJsonDocument::fromJson(s.toUtf8());
 
@@ -140,27 +110,113 @@ void Dialog::showResponse(const QString &s)
                                "\nType: %3")
                             .arg(++m_transactionCount)
                             .arg(jsonObj["quantity"].toString())
-            .arg(jsonObj["type"].toString()));
+            .arg(jsonObj["type"].toString()));*/
 }
 
-void Dialog::processError(const QString &s)
+void Window::processError(const QString &s)
 {
-    setControlsEnabled(true);
+    /*setControlsEnabled(true);
     m_statusLabel->setText(tr("Status: Not running, %1.").arg(s));
-    m_trafficLabel->setText(tr("No traffic."));
+    m_trafficLabel->setText(tr("No traffic."));*/
 }
 
-void Dialog::processTimeout(const QString &s)
+void Window::processTimeout(const QString &s)
 {
-    setControlsEnabled(true);
+   /* setControlsEnabled(true);
     m_statusLabel->setText(tr("Status: Running, %1.").arg(s));
-    m_trafficLabel->setText(tr("No traffic."));
+    m_trafficLabel->setText(tr("No traffic."));*/
 }
 
-void Dialog::setControlsEnabled(bool enable)
+void Window::setControlsEnabled(bool enable)
 {
-    start->setEnabled(enable);
+    /*start->setEnabled(enable);
     m_serialPortComboBox->setEnabled(enable);
     m_waitResponseSpinBox->setEnabled(enable);
-    m_requestLineEdit->setEnabled(enable);
+    m_requestLineEdit->setEnabled(enable);*/
+}
+
+void Window::closeEvent(QCloseEvent *event)
+{
+
+    if (trayIcon->isVisible()) {
+        QMessageBox::information(this, tr("Systray"),
+                                 tr("The program will keep running in the "
+                                    "system tray. To terminate the program, "
+                                    "choose <b>Quit</b> in the context menu "
+                                    "of the system tray entry."));
+        hide();
+        event->ignore();
+    }
+}
+
+
+void Window::setIcon()
+{
+
+}
+
+void Window::iconActivated(QSystemTrayIcon::ActivationReason reason)
+{
+    switch (reason) {
+    case QSystemTrayIcon::Trigger:
+    case QSystemTrayIcon::DoubleClick:
+        //iconComboBox->setCurrentIndex((iconComboBox->currentIndex() + 1) % iconComboBox->count());
+        break;
+    case QSystemTrayIcon::MiddleClick:
+        showMessage();
+        break;
+    default:
+        ;
+    }
+}
+
+void Window::showMessage()
+{
+    /*showIconCheckBox->setChecked(true);
+    int selectedIcon = typeComboBox->itemData(typeComboBox->currentIndex()).toInt();
+    QSystemTrayIcon::MessageIcon msgIcon = QSystemTrayIcon::MessageIcon(selectedIcon);
+
+    if (selectedIcon == -1) { // custom icon
+        QIcon icon(iconComboBox->itemIcon(iconComboBox->currentIndex()));
+        trayIcon->showMessage(titleEdit->text(), bodyEdit->toPlainText(), icon,
+                          durationSpinBox->value() * 1000);
+    } else {
+        trayIcon->showMessage(titleEdit->text(), bodyEdit->toPlainText(), msgIcon,
+                          durationSpinBox->value() * 1000);
+    }*/
+}
+
+void Window::messageClicked()
+{
+    QMessageBox::information(nullptr, tr("Systray"),
+                             tr("Sorry, I already gave what help I could.\n"
+                                "Maybe you should try asking a human?"));
+}
+
+void Window::createActions()
+{
+    minimizeAction = new QAction(tr("Mi&nimize"), this);
+    connect(minimizeAction, &QAction::triggered, this, &QWidget::hide);
+
+    maximizeAction = new QAction(tr("Ma&ximize"), this);
+    connect(maximizeAction, &QAction::triggered, this, &QWidget::showMaximized);
+
+    restoreAction = new QAction(tr("&Restore"), this);
+    connect(restoreAction, &QAction::triggered, this, &QWidget::showNormal);
+
+    quitAction = new QAction(tr("&Quit"), this);
+    connect(quitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
+}
+
+void Window::createTrayIcon()
+{
+    trayIconMenu = new QMenu(this);
+    trayIconMenu->addAction(minimizeAction);
+    trayIconMenu->addAction(maximizeAction);
+    trayIconMenu->addAction(restoreAction);
+    trayIconMenu->addSeparator();
+    trayIconMenu->addAction(quitAction);
+
+    trayIcon = new QSystemTrayIcon(this);
+    trayIcon->setContextMenu(trayIconMenu);
 }

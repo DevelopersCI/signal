@@ -6,13 +6,13 @@
 #include <QWaitCondition>
 
 //! [0]
-class MasterThread : public QThread
+class Bascula : public QThread
 {
     Q_OBJECT
 
 public:
-    explicit MasterThread(QObject *parent = nullptr);
-    ~MasterThread();
+    explicit Bascula(QObject *parent = nullptr);
+    ~Bascula();
 
     void transaction(const QString &portName, int waitTimeout, const QString &request);
     void stopReading();

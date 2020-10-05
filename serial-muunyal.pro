@@ -12,15 +12,27 @@ INCLUDEPATH += $$PWD
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    dialog.cpp \
-    echoserver.cpp \
+    bascula.cpp \
     main.cpp \
-    masterthread.cpp
+    screens/basculascreen.cpp \
+    screens/printerscreen.cpp \
+    screens/serverscreen.cpp \
+    server.cpp \
+    utils/utils.cpp \
+    widgets/leftsidebar.cpp \
+    widgets/pushbutton.cpp \
+    window.cpp
 
 HEADERS += \
-    dialog.h \
-    echoserver.h \
-    masterthread.h
+    bascula.h \
+    screens/basculascreen.h \
+    screens/printerscreen.h \
+    screens/serverscreen.h \
+    server.h \
+    utils/utils.h \
+    widgets/leftsidebar.h \
+    widgets/pushbutton.h \
+    window.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -31,5 +43,9 @@ RESOURCES += \
     assets.qrc
 
 RC_ICONS = app.ico
+
+DISTFILES += \
+    assets/bacula.svg \
+    assets/bacula2.png
 
 

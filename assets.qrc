@@ -1,5 +1,9 @@
 <RCC>
     <qresource prefix="/">
         <file>assets/signal-distance-variant.svg</file>
+        <file>assets/settings.svg</file>
+        <file>assets/server.svg</file>
+        <file>assets/printer.svg</file>
+        <file>assets/bascula.png</file>
     </qresource>
 </RCC>
