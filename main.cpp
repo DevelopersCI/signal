@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
 
 
 
-    MainWindow w;
+    Window w;
     w.setWindowTitle("Signal");
     QDesktopWidget *desktop = QApplication::desktop();
 

@@ -17,7 +17,10 @@ class PrinterScreen : public QWidget
 
 public:
     explicit PrinterScreen(QWidget *parent = nullptr);
-
+signals:
+    void notification();
+public:
+    void setImg(QByteArray img);
 private:
     QLabel *m_serialPortLabel;
     QComboBox *m_serialPortComboBox;
@@ -29,6 +32,8 @@ private:
     QLabel *m_statusLabel;
     QPushButton *start;
     QPushButton *stop;
+    QImage *img;
+    QPixmap *pix;
 };
 
 #endif // PRINTERSCREEN_H

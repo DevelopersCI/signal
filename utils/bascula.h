@@ -1,5 +1,5 @@
-#ifndef MASTERTHREAD_H
-#define MASTERTHREAD_H
+#ifndef BASCULA_H
+#define BASCULA_H
 
 #include <QMutex>
 #include <QThread>

@@ -1,6 +1,7 @@
 #ifndef BASCULASCREEN_H
 #define BASCULASCREEN_H
 
+#include "utils/bascula.h"
 #include <QWidget>
 QT_BEGIN_NAMESPACE
 
@@ -17,6 +18,18 @@ class BasculaScreen: public QWidget
 
 public:
     explicit BasculaScreen(QWidget *parent = nullptr);
+
+public slots:
+    void showResponse(const QString &s);
+    void processError(const QString &s);
+    void processTimeout(const QString &s);
+    void transaction();
+    void clientDesconect();
+private:
+    void setControlsEnabled(bool enable);
+
+Q_SIGNALS:
+    void getInfobyBascula(QString message);
 private:
     int m_transactionCount = 0;
     QLabel *m_serialPortLabel;
@@ -29,6 +42,7 @@ private:
     QLabel *m_statusLabel;
     QPushButton *start;
     QPushButton *stop;
+    Bascula bascula;
 };
 
 #endif // BASCULASCREEN_H

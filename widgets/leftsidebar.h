@@ -18,6 +18,8 @@ signals:
 private:
     void paintEvent(QPaintEvent *);
     void initButtons();
+public:
+    void setChecked(int index);
 
 private:
     QVBoxLayout *m_layout;

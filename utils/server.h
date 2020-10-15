@@ -18,12 +18,14 @@ public:
 Q_SIGNALS:
     void closed();
     void onClientConnected(bool connect);
-
+    void turnOnOffBascula(bool state);
+    void binaryMessage(QByteArray message);
 
 
 public slots:
     void onNewConnection();
     void processTextMessage(QString message);
+    void sendMessage(QString message);
     void processBinaryMessage(QByteArray message);
     void socketDisconnected();
     void onConnected();

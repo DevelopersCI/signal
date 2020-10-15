@@ -8,7 +8,7 @@ LeftSideBar::LeftSideBar(QWidget *parent)
     : QWidget(parent), m_layout(new QVBoxLayout),
       m_buttonGroup(new QButtonGroup)
 {
-    m_buttonNameList << tr("Server") << tr("Bascula") << tr("Impresora");
+    m_buttonNameList << tr("Impresora") << tr("Bascula");
     m_layout->setSpacing(5);
 
     setLayout(m_layout);
@@ -30,9 +30,8 @@ void LeftSideBar::paintEvent(QPaintEvent *e)
 void LeftSideBar::initButtons()
 {
     const QMap<int, QString> icons = {
-        {0, ":/assets/server.svg"},
+        {0, ":/assets/printer.svg"},
         {1, ":/assets/bascula.png"},
-        {2, ":/assets/printer.svg"},
 
     };
 
@@ -52,6 +51,11 @@ void LeftSideBar::initButtons()
 
     }
 
-    m_buttonGroup->button(1)->setChecked(true);
+    setChecked(1);
     m_layout->addStretch();
+}
+
+void LeftSideBar::setChecked(int index)
+{
+    m_buttonGroup->button(index)->setChecked(true);
 }

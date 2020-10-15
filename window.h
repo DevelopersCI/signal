@@ -4,10 +4,9 @@
 #include <QSystemTrayIcon>
 #include <QDialog>
 
-#include "bascula.h"
 #include <QDialog>
 #include <QMainWindow>
-#include "server.h"
+#include "utils/server.h"
 #include <QStackedLayout>
 #include "widgets/leftsidebar.h"
 
@@ -32,16 +31,15 @@ private slots:
     void showMessage();
     void messageClicked();
 
-    void transaction();
-    void showResponse(const QString &s);
-    void processError(const QString &s);
-    void processTimeout(const QString &s);
     void onClient(const bool &s);
-    void clientConnect();
-    void clientDesconect();
+    void turnOnOffBascula(const bool &s);
+    void startBascula();
+    void stopBascula();
+    void setMessage(QString msg);
+    void binaryMessage(QByteArray message);
+    void notification();
 
 private:
-    void setControlsEnabled(bool enable);
     void handleLeftSideBarChanged(int index);
     void createActions();
     void createTrayIcon();
@@ -53,7 +51,7 @@ private:
     BasculaScreen *basculaScreen;
     PrinterScreen *printerScreen;
 
-    Bascula m_thread;
+
     EchoServer *server;
 
     QAction *minimizeAction;

@@ -1,9 +1,9 @@
-QT += gui websockets core  serialport widgets
+QT += gui websockets core serialport widgets printsupport
 requires(qtConfig(combobox))
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-CONFIG += c++11
+CONFIG += c++11 console
 
 INCLUDEPATH += $$PWD
 
@@ -12,24 +12,24 @@ INCLUDEPATH += $$PWD
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    bascula.cpp \
     main.cpp \
     screens/basculascreen.cpp \
     screens/printerscreen.cpp \
     screens/serverscreen.cpp \
-    server.cpp \
+    utils/server.cpp \
     utils/utils.cpp \
+    utils/bascula.cpp \
     widgets/leftsidebar.cpp \
     widgets/pushbutton.cpp \
     window.cpp
 
 HEADERS += \
-    bascula.h \
     screens/basculascreen.h \
     screens/printerscreen.h \
     screens/serverscreen.h \
-    server.h \
+    utils/server.h \
     utils/utils.h \
+    utils/bascula.h \
     widgets/leftsidebar.h \
     widgets/pushbutton.h \
     window.h

@@ -2,6 +2,9 @@
 #include "QtWebSockets/qwebsocketserver.h"
 #include "QtWebSockets/qwebsocket.h"
 #include <QtCore/QDebug>
+#include <QException>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 QT_USE_NAMESPACE
 
@@ -45,25 +48,46 @@ void EchoServer::onNewConnection()
 void EchoServer::onConnected()
 {
 
-   emit this->onClientConnected(true);
+    emit this->onClientConnected(true);
 
 }
 
 //! [processTextMessage]
 void EchoServer::processTextMessage(QString message)
 {
-    QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
-    if (m_debug){
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(message.toUtf8());
+    QJsonObject jsonObject = jsonResponse.object();
+    QString type = jsonObject["type"].toString();
 
-       // qDebug() << "Message received:" << message;
+    qDebug() << "Message received:" << message << jsonObject["action"].toInt();
+
+    switch (jsonObject["action"].toInt()) {
+    case 0:
+        qDebug() << "apagando bascula";
+        emit turnOnOffBascula(false);
+        break;
+    case 1:
+        qDebug() << "encendiendo bascula";
+        emit turnOnOffBascula(true);
+        break;
+    default:
+        return;
     }
-    if(m_clients.length() >0){
+
+}
 
 
-        if (websokect) {
-            //pClient->sendTextMessage(message);
-            websokect->sendTextMessage(message);
+void EchoServer::sendMessage(QString message){
+    try {
+        if(m_clients.length() >0){
+            if (websokect) {
+                //qDebug() << message;
+                //pClient->sendTextMessage(message);
+                websokect->sendTextMessage(message);
+            }
         }
+    }  catch (QException e) {
+
     }
 }
 //! [processTextMessage]
@@ -71,12 +95,14 @@ void EchoServer::processTextMessage(QString message)
 //! [processBinaryMessage]
 void EchoServer::processBinaryMessage(QByteArray message)
 {
-    QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
+
+    emit binaryMessage(message);
+    /*QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
     if (m_debug)
         qDebug() << "Binary Message received:" << message;
     if (pClient) {
         pClient->sendBinaryMessage(message);
-    }
+    }*/
 }
 //! [processBinaryMessage]
 
