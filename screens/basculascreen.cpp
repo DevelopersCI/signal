@@ -10,6 +10,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QException>
+#include <QDebug>
 
 BasculaScreen::BasculaScreen(QWidget *parent)
    : QWidget(parent)

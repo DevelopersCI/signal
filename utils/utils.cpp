@@ -63,40 +63,12 @@ QString Utils::getUserName()
     return QString::fromStdString(user_name);
 }
 
-QString Utils::getPlatform()
-{
-    struct utsname u;
-    QString kernelType;
-    QString cpuArchitecture;
-
-    if (uname(&u) != 0) {
-        cpuArchitecture = "i386";
-    } else {
-        kernelType = QString::fromLatin1(u.sysname);
-        cpuArchitecture = QString::fromLatin1(u.machine);
-    }
-
-    return QString("%1 %2")
-           .arg(kernelType)
-           .arg(cpuArchitecture);
-}
 
 QString Utils::getDistribution()
 {
     return QSysInfo::prettyProductName();
 }
 
-QString Utils::getKernelVersion()
-{
-    struct utsname u;
-    QString kernelVersion;
-
-    if (uname(&u) == 0) {
-        kernelVersion = QString::fromLatin1(u.release);
-    }
-
-    return kernelVersion;
-}
 
 QString Utils::getBootTime()
 {
